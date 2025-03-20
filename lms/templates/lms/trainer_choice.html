@@ -1,0 +1,13 @@
+{% extends 'lms/home_base.html' %}
+
+{% block content %}
+<section style="margin-top: 100px;" class="container text-center">
+    <h2>Welcome Trainer!</h2>
+    <p>Please choose an option below:</p>
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'lms:login_trainer' %}" class="btn btn-primary btn-lg" style="margin: 10px;">Login as Trainer</a>
+        <a href="{% url 'lms:trainer_registration' %}" class="btn btn-success btn-lg" style="margin: 10px;">Sign Up as Trainer</a>
+    </div>
+</section>
+{% endblock %}

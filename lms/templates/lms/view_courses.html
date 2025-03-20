@@ -1,0 +1,13 @@
+<h2>Available Courses</h2>
+{% for course in courses %}
+  <div>
+    <h3>{{ course.course_name }}</h3>
+    <p>{{ course.course_description }}</p>
+    <p>Duration: {{ course.course_duration }}</p>
+    {% if course.id in enrolled_courses %}
+      <p><strong>Enrolled</strong></p>
+    {% else %}
+      <a href="{% url 'lms:enroll_in_course' course.id %}">Enroll</a>
+    {% endif %}
+  </div>
+{% endfor %}

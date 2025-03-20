@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <div style="text-align: right;">
+        <form action="{% url 'lms:logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <h1>Welcome, {{ request.user.username }}!</h1>
+    <p>This is your dashboard.</p>
+
+    <h2>Your Courses</h2>
+    {% for enrollment in enrollments %}
+      <div>
+        <h3>{{ enrollment.course.course_name }}</h3>
+        <p>{{ enrollment.course.course_description }}</p>
+      </div>
+    {% empty %}
+      <p>You haven't enrolled in any courses yet.</p>
+    {% endfor %}
+
+    <hr>
+
+    <h2>Available Courses</h2>
+    {% for course in available_courses %}
+      <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+        <h3>{{ course.course_name }}</h3>
+        <p>{{ course.course_description }}</p>
+        <form method="POST" action="{% url 'lms:enroll_course' course.id %}">
+            {% csrf_token %}
+            <button type="submit">Enroll</button>
+        </form>
+      </div>
+    {% empty %}
+      <p>No more courses available to enroll.</p>
+    {% endfor %}
+</body>
+</html>
