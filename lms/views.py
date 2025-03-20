@@ -128,18 +128,23 @@ def trainer_registration(request):
                     email=email,
                     password=password1
                 )
-                user.is_staff = True  
+                user.is_staff = True  # if you want trainer to access admin
                 user.save()
 
-                trainer_exists = TrainerRegistration.objects.filter(user=user).exists()
-                if not trainer_exists:
-                    TrainerRegistration.objects.create(user=user, status=False)
-                    return redirect('lms:learn_as_trainer')
+               
+                TrainerRegistration.objects.get_or_create(
+                    user=user,
+                    defaults={'status': False}  # optional fields like role can go here too
+                )
+
+                messages.success(request, "Trainer account created. Awaiting approval.")
+                return redirect('lms:learn_as_trainer')
         else:
             messages.info(request, "Passwords do not match.")
             return redirect('lms:trainer_registration')
     else:
         return render(request, 'lms/trainer_registration.html')
+
     
     
 @login_required(login_url='lms:login_trainer')
@@ -157,7 +162,7 @@ def login_trainer(request):
             try:
                 trainer_profile = TrainerRegistration.objects.get(user=user)
 
-                if trainer_profile.status:  
+                if trainer_profile.role == 'trainer' and trainer_profile.status:  
                     auth.login(request, user)
                     return redirect('lms:trainer_dashboard')  # Dashboard after login
                 else:
