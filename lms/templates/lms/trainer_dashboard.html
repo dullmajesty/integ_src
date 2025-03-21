@@ -1,53 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Trainer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2, h3 {
+            color: #007bff;
+        }
+        .profile-info p {
+            margin: 5px 0;
+        }
+        form input, form textarea, form button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        form button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        form button:hover {
+            background: #0056b3;
+        }
+        .course-card {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+        .edit-link {
+            color: #007bff;
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .edit-link:hover {
+            text-decoration: underline;
+        }
+        .logout-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
 </head>
 <body>
-    <h2>Welcome, {{ trainer.user.first_name }} {{ trainer.user.last_name }}</h2>
-    <p><strong>Email:</strong> {{ trainer.user.email }}</p>
-    <p><strong>Qualification:</strong> {{ trainer.qualification }}</p>
-    <p><strong>Experience:</strong> {{ trainer.experience }}</p>
-    <p><strong>Skills:</strong> {{ trainer.skills }}</p>
-
-    <hr>
-
-    <h3>Create a New Course</h3>
-    <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
-        {% csrf_token %}
-        <input type="text" name="course_name" placeholder="Course Name" required><br>
-        <textarea name="course_description" placeholder="Course Description" required></textarea><br>
-        <input type="text" name="course_duration" placeholder="Duration (e.g., 4 weeks)" required><br>
-        <button type="submit" name="create_course">Create Course</button>
-    </form>
-
-    <hr>
-
-    <h3>Your Courses</h3>
-    {% for course in courses %}
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-            {% if editing_course and editing_course.id == course.id %}
-                <h4>Editing: {{ editing_course.course_name }}</h4>
-                <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="course_id" value="{{ editing_course.id }}">
-                    <input type="text" name="course_name" value="{{ editing_course.course_name }}" required><br>
-                    <textarea name="course_description" required>{{ editing_course.course_description }}</textarea><br>
-                    <input type="text" name="course_duration" value="{{ editing_course.course_duration }}" required><br>
-                    <button type="submit" name="update_course">Update Course</button>
-                </form>
-            {% else %}
-                <h4>{{ course.course_name }}</h4>
-                <p>{{ course.course_description }}</p>
-                <p><strong>Duration:</strong> {{ course.course_duration }}</p>
-                <a href="?edit={{ course.id }}">Edit</a>
-            {% endif %}
+    <div class="container">
+        <h2>Welcome, {{ trainer.user.first_name }} {{ trainer.user.last_name }}</h2>
+        <div class="profile-info">
+            <p><strong>Email:</strong> {{ trainer.user.email }}</p>
+            <p><strong>Qualification:</strong> {{ trainer.qualification }}</p>
+            <p><strong>Experience:</strong> {{ trainer.experience }}</p>
+            <p><strong>Skills:</strong> {{ trainer.skills }}</p>
         </div>
-    {% empty %}
-        <p>You haven't created any courses yet.</p>
-    {% endfor %}
-
-    <hr>
-    <a href="{% url 'lms:logout_trainer' %}">Logout</a>
+        <hr>
+        <h3>Create a New Course</h3>
+        <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
+            {% csrf_token %}
+            <input type="text" name="course_name" placeholder="Course Name" required>
+            <textarea name="course_description" placeholder="Course Description" required></textarea>
+            <input type="text" name="course_duration" placeholder="Duration (e.g., 4 weeks)" required>
+            <button type="submit" name="create_course">Create Course</button>
+        </form>
+        <hr>
+        <h3>Your Courses</h3>
+        {% for course in courses %}
+            <div class="course-card">
+                {% if editing_course and editing_course.id == course.id %}
+                    <h4>Editing: {{ editing_course.course_name }}</h4>
+                    <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="course_id" value="{{ editing_course.id }}">
+                        <input type="text" name="course_name" value="{{ editing_course.course_name }}" required>
+                        <textarea name="course_description" required>{{ editing_course.course_description }}</textarea>
+                        <input type="text" name="course_duration" value="{{ editing_course.course_duration }}" required>
+                        <button type="submit" name="update_course">Update Course</button>
+                    </form>
+                {% else %}
+                    <h4>{{ course.course_name }}</h4>
+                    <p>{{ course.course_description }}</p>
+                    <p><strong>Duration:</strong> {{ course.course_duration }}</p>
+                    <a class="edit-link" href="?edit={{ course.id }}">Edit</a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>You haven't created any courses yet.</p>
+        {% endfor %}
+        <a class="logout-btn" href="{% url 'lms:logout_trainer' %}">Logout</a>
+    </div>
 </body>
 </html>
