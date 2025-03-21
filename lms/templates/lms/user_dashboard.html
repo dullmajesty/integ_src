@@ -2,43 +2,143 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management | ERSM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            scroll-behavior: smooth;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
-<body>
-    <div style="text-align: right;">
-        <form action="{% url 'lms:logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+    <nav class="bg-gradient-to-r from-blue-700 to-indigo-800 shadow-lg p-5 sticky top-0 z-50 rounded-b-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'lms:home' %}" class="flex items-center space-x-2 text-2xl font-bold text-white hover:scale-105 transition-transform">
+                <img src="/static/images/ESM_logo.jpg" alt="ERSM Logo" class="h-8 w-8 rounded-full">
+                <span>ERSM</span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="{% url 'lms:home' %}" class="text-white hover:text-gray-300 transition">Home</a>
+                <a href="{% url 'lms:trainer_choice' %}" class="text-white hover:text-gray-300 transition">Trainer</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-white font-semibold">Hello, {{ request.user.username }}</span>
+                <a href="{% url 'lms:logout' %}" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto max-w-3xl bg-white shadow-xl rounded-xl p-10 mt-12 fade-in border border-gray-300">
+        <h1 class="text-3xl font-bold text-blue-800">Create a New Course</h1>
+        <p class="text-gray-600">Fill in the details to start a new learning journey.</p>
+
+        <form id="courseForm" class="mt-6 space-y-4">
+            <label class="block text-gray-700 font-semibold">Course Title</label>
+            <input type="text" id="courseTitle" class="w-full p-3 border rounded-lg focus:ring-4 focus:ring-blue-500 transition" placeholder="Enter course title" required>
+
+            <label class="block text-gray-700 font-semibold">Category</label>
+            <select id="courseCategory" class="w-full p-3 border rounded-lg focus:ring-4 focus:ring-blue-500 transition" required>
+                <option value="">Select a category</option>
+                <option value="Development">Development</option>
+                <option value="Design">Design</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Business">Business</option>
+            </select>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold py-3 rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-800 transition-transform transform hover:scale-105">
+                ➕ Add Course
+            </button>
         </form>
+
+        <p id="successMessage" class="hidden text-green-600 font-semibold mt-4 text-center">✅ Course added successfully!</p>
     </div>
 
-    <h1>Welcome, {{ request.user.username }}!</h1>
-    <p>This is your dashboard.</p>
+    <div class="container mx-auto max-w-4xl mt-10">
+        <h2 class="text-3xl font-bold text-blue-800 text-center">Your Courses</h2>
+        <div id="emptyMessageContainer" class="flex justify-center mt-6 w-full">
+            <p id="emptyMessage" class="text-gray-600 text-lg bg-gray-100 p-6 rounded-lg shadow-md text-center w-full max-w-md">
+                🎓 <span class="block font-semibold">You haven't created any courses yet!</span>
+                <span class="mt-2">Start your journey by clicking the <span class="text-blue-800 font-semibold">"Add Course"</span> button above. 🚀</span>
+            </p>
+        </div>
+        <div id="courseList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 w-full"></div>
+    </div>
 
-    <h2>Your Courses</h2>
-    {% for enrollment in enrollments %}
-      <div>
-        <h3>{{ enrollment.course.course_name }}</h3>
-        <p>{{ enrollment.course.course_description }}</p>
-      </div>
-    {% empty %}
-      <p>You haven't enrolled in any courses yet.</p>
-    {% endfor %}
+    <footer class="bg-blue-900 text-white mt-16 p-8 rounded-t-xl">
+        <div class="container mx-auto text-center">
+            <p>© 2025 ERSM Innovations. All Rights Reserved.</p>
+            <div class="flex justify-center space-x-6 mt-2">
+                <a href="{% url 'lms:home' %}" class="hover:underline">Home</a>
+                <a href="#" class="hover:underline">Terms of Service</a>
+                <a href="#" class="hover:underline">Privacy Policy</a>
+            </div>
+            <p class="mt-4">ERSM Innovations, 3rd floor, USTP, Philippines</p>
+        </div>
+    </footer>
 
-    <hr>
+    <script>
+        document.addEventListener("DOMContentLoaded", loadCourses);
 
-    <h2>Available Courses</h2>
-    {% for course in available_courses %}
-      <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-        <h3>{{ course.course_name }}</h3>
-        <p>{{ course.course_description }}</p>
-        <form method="POST" action="{% url 'lms:enroll_course' course.id %}">
-            {% csrf_token %}
-            <button type="submit">Enroll</button>
-        </form>
-      </div>
-    {% empty %}
-      <p>No more courses available to enroll.</p>
-    {% endfor %}
+        document.getElementById('courseForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let title = document.getElementById('courseTitle').value.trim();
+            let category = document.getElementById('courseCategory').value;
+
+            if (!title || !category) {
+                alert('Please fill in all fields!');
+                return;
+            }
+
+            let courses = JSON.parse(localStorage.getItem('courses')) || [];
+            courses.push({ title, category });
+            localStorage.setItem('courses', JSON.stringify(courses));
+            
+            addCourseToUI(title, category);
+            document.getElementById('courseForm').reset();
+            document.getElementById('successMessage').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('successMessage').classList.add('hidden'); }, 3000);
+        });
+
+        function addCourseToUI(title, category) {
+            let courseCard = document.createElement('div');
+            courseCard.classList.add('bg-white', 'shadow-lg', 'rounded-lg', 'p-6', 'fade-in', 'transition', 'transform', 'hover:scale-105');
+            courseCard.innerHTML = `
+                <h3 class="text-xl font-semibold text-blue-800">${title}</h3>
+                <p class="text-gray-600 mt-2">Category: ${category}</p>
+                <button onclick="deleteCourse(this, '${title}')" class="text-red-500 hover:text-red-700 mt-4 font-bold">🗑️ Delete</button>
+            `;
+            document.getElementById('courseList').appendChild(courseCard);
+            document.getElementById('emptyMessage').classList.add('hidden');
+        }
+
+        function loadCourses() {
+            let courses = JSON.parse(localStorage.getItem('courses')) || [];
+            if (courses.length > 0) {
+                document.getElementById('emptyMessage').classList.add('hidden');
+                courses.forEach(course => addCourseToUI(course.title, course.category));
+            }
+        }
+
+        function deleteCourse(button, title) {
+            let courses = JSON.parse(localStorage.getItem('courses')) || [];
+            courses = courses.filter(course => course.title !== title);
+            localStorage.setItem('courses', JSON.stringify(courses));
+            button.parentElement.remove();
+            if (document.getElementById('courseList').children.length === 0) {
+                document.getElementById('emptyMessage').classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
