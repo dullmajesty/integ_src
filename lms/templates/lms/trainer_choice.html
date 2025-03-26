@@ -1,13 +1,61 @@
 {% extends 'lms/home_base.html' %}
 
 {% block content %}
-<section style="margin-top: 100px;" class="container text-center">
-    <h2>Welcome Trainer!</h2>
-    <p>Please choose an option below:</p>
+<a href="{% url 'lms:home' %}" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #6a11cb;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: transform 0.2s ease;
+" onmouseover="this.style.transform='scale(1.2)';" onmouseout="this.style.transform='scale(1)';">
+    🏠
+</a>
 
-    <div style="margin-top: 30px;">
-        <a href="{% url 'lms:login_trainer' %}" class="btn btn-primary btn-lg" style="margin: 10px;">Login as Trainer</a>
-        <a href="{% url 'lms:trainer_registration' %}" class="btn btn-success btn-lg" style="margin: 10px;">Sign Up as Trainer</a>
+<section style="
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background: #6a11cb;
+    color: #ffffff;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    padding: 50px;
+">
+    <h2 style="font-size: 3rem; margin-bottom: 20px; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">Welcome Trainer!</h2>
+    <p style="font-size: 1.3rem; margin-bottom: 40px; max-width: 700px; text-align: center; line-height: 1.6;">We're excited to have you on board. Please choose an option below:</p>
+
+    <div style="display: flex; gap: 30px;">
+        <a href="{% url 'lms:login_trainer' %}" style="
+            background: #6a11cb;
+            color: #ffffff;
+            padding: 15px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: background 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        " onmouseover="this.style.background='#4a0d99'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='#6a11cb'; this.style.transform='scale(1)';">
+            Login as Trainer
+        </a>
+        <a href="{% url 'lms:trainer_registration' %}" style="
+            background: #2ec4b6;
+            color: #ffffff;
+            padding: 15px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: background 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        " onmouseover="this.style.background='#26a69a'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='#2ec4b6'; this.style.transform='scale(1)';">
+            Sign Up as Trainer
+        </a>
     </div>
 </section>
 {% endblock %}
