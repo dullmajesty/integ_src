@@ -9,18 +9,20 @@
     <style>
         html, body { 
             height: 100%; 
-            overflow: auto; 
+            overflow: hidden; 
             margin: 0; 
             padding: 0; 
-            font-family: Arial, sans-serif; 
-            background: white; 
-            display: flex; 
-            flex-direction: column;
+        }
+        body { 
+            font-family: Arial, sans-serif;
+            background: white; display: flex; 
+            flex-direction: column; 
         }
         .container { 
             flex: 1; 
             width: 1089px; 
             padding: 20px; 
+            overflow: auto; 
         }
         .profile-info p { 
             margin: 5px 0; 
@@ -32,6 +34,7 @@
             display: flex; 
             flex-direction: column; 
         }
+        
         .edit-link { 
             color: blue; 
             text-decoration: none; 
@@ -41,7 +44,7 @@
         .sidebar { 
             width: 351px; 
             background: #D9D9D9; 
-            min-height: 100vh; 
+            height: 100vh; 
             position: absolute; 
             right: 0; 
             top: 0; 
@@ -54,51 +57,17 @@
             padding: 10px 20px; 
             font-size: 20px; 
             font-weight: 600; 
-            display: flex; 
-            align-items: center;
-        }
-        .header img {
-            height: 50px; 
-            margin-right: 10px;
         }
         .footer { 
             background: #5A7D9A; 
             text-align: center; 
-            padding: 10px; 
-            width: 100%; 
-            color: white; 
-            position: relative;
-        }
-        .nav-item { 
-            cursor: pointer; 
-            padding: 10px; 
-            margin: 5px 0; 
-            background: #ccc; 
-            text-align: center; 
-        }
-        .nav-item:hover { 
-            background: #bbb; 
-        }
-        .content-section { 
-            display: none; 
-        }
-        .active { 
-            display: block; 
-        }
-        .modal { 
-            display: none; 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            background: white; 
-            padding: 20px; 
-            border: 1px solid #ccc; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
-        }
-        .modal.active { 
-            display: block; 
-        }
+            padding: 10px; position: fixed; bottom: 0; width: 100%; color: white; }
+        .nav-item { cursor: pointer; padding: 10px; margin: 5px 0; background: #ccc; text-align: center; }
+        .nav-item:hover { background: #bbb; }
+        .content-section { display: none; }
+        .active { display: block; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .modal.active { display: block; }
     </style>
     <script>
         function showSection(sectionId) {
@@ -106,16 +75,19 @@
                 section.classList.remove('active');
             });
             document.getElementById(sectionId).classList.add('active');
-
-            // Show profile info only on 'home' tab
-            document.querySelector('.profile-info').style.display = (sectionId === 'home') ? 'block' : 'none';
+            
+            if (sectionId === 'home') {
+                document.querySelector('.profile-info').style.display = 'block';
+            } else {
+                document.querySelector('.profile-info').style.display = 'none';
+            }
         }
 
         function openModal(courseId, name, description, duration) {
             document.getElementById('modal').classList.add('active');
             document.getElementById('edit-course-id').value = courseId;
             document.getElementById('edit-course-name').value = name;
-            document.getElementById('edit-course-description').value = description.replace(/\\n/g, ' ');
+            document.getElementById('edit-course-description').value = description;
             document.getElementById('edit-course-duration').value = duration;
         }
 
@@ -126,7 +98,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{% static 'images/logo.png' %}" alt="Logo"> 
+        <img src="{% static 'images/logo.png' %}" alt="Logo" style="height: 50px; vertical-align: middle;"> 
         ERMS - Trainer Dashboard
     </div>
 
@@ -162,8 +134,8 @@
                 <input type="text" name="course_name" placeholder="Course Name" required>
                 <select name="course_category" required>
                     <option value="" disabled selected>Select Category</option>
-                    <option value="Programming">Programming</option>
-                    <option value="Design">Design</option>
+                    <option value="programming">Programming</option>
+                    <option value="design">Design</option>
                     <option value="Marketing">Marketing</option>
                     <option value="Business">Business</option>
                     <option value="Data Science">Data Science</option>
@@ -175,7 +147,8 @@
                 <button type="submit" name="create_course">Create Course</button>
             </form>
         </div>
-
+        
+        
         <div id="edit-course" class="content-section">
             <h3>Edit Courses</h3>
             {% for course in courses %}
@@ -183,12 +156,25 @@
                     <h4>{{ course.course_name }}</h4>
                     <p>{{ course.course_description }}</p>
                     <p><strong>Duration:</strong> {{ course.course_duration }}</p>
-                    <button class="edit-link" onclick="openModal('{{ course.id }}', '{{ course.course_name }}', '{{ course.course_description|escapejs }}', '{{ course.course_duration }}')">Edit</button>
+                    <button class="edit-link" onclick="openModal('{{ course.id }}', '{{ course.course_name }}', '{{ course.course_description }}', '{{ course.course_duration }}')">Edit</button>
                 </div>
             {% empty %}
                 <p>No courses available for editing.</p>
             {% endfor %}
         </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <h3>Edit Course</h3>
+        <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" id="edit-course-id" name="course_id">
+            <input type="text" id="edit-course-name" name="course_name" required>
+            <textarea id="edit-course-description" name="course_description" required></textarea>
+            <input type="text" id="edit-course-duration" name="course_duration" required>
+            <button type="submit" name="update_course">Update Course</button>
+            <button type="button" onclick="closeModal()">Cancel</button>
+        </form>
     </div>
 
     <div class="sidebar">
@@ -197,10 +183,11 @@
         <div class="nav-item" onclick="showSection('create-course')">Create Courses</div>
         <div class="nav-item" onclick="showSection('edit-course')">Edit Courses</div>
         <div class="nav-item"><a href="{% url 'lms:logout_trainer' %}" style="text-decoration: none; color: black;">Logout</a></div>
+      
     </div>
-
+    
     <div class="footer">
-        © 2025 ERMS. All rights reserved.
+        © 2025 ERSM. All rights reserved.
     </div>
 </body>
 </html>
