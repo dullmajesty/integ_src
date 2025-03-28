@@ -1,53 +1,206 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trainer Dashboard</title>
+    <style>
+        html, body { 
+            height: 100%; 
+            overflow: auto; 
+            margin: 0; 
+            padding: 0; 
+            font-family: Arial, sans-serif; 
+            background: white; 
+            display: flex; 
+            flex-direction: column;
+        }
+        .container { 
+            flex: 1; 
+            width: 1089px; 
+            padding: 20px; 
+        }
+        .profile-info p { 
+            margin: 5px 0; 
+        }
+        .course-card { 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            margin: 10px 0; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .edit-link { 
+            color: blue; 
+            text-decoration: none; 
+            cursor: pointer; 
+            align-self: flex-start; 
+        }
+        .sidebar { 
+            width: 351px; 
+            background: #D9D9D9; 
+            min-height: 100vh; 
+            position: absolute; 
+            right: 0; 
+            top: 0; 
+            padding: 20px; 
+        }
+        .header { 
+            width: 100%; 
+            background: #5A7D9A; 
+            color: white; 
+            padding: 10px 20px; 
+            font-size: 20px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center;
+        }
+        .header img {
+            height: 50px; 
+            margin-right: 10px;
+        }
+        .footer { 
+            background: #5A7D9A; 
+            text-align: center; 
+            padding: 10px; 
+            width: 100%; 
+            color: white; 
+            position: relative;
+        }
+        .nav-item { 
+            cursor: pointer; 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #ccc; 
+            text-align: center; 
+        }
+        .nav-item:hover { 
+            background: #bbb; 
+        }
+        .content-section { 
+            display: none; 
+        }
+        .active { 
+            display: block; 
+        }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        }
+        .modal.active { 
+            display: block; 
+        }
+    </style>
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            // Show profile info only on 'home' tab
+            document.querySelector('.profile-info').style.display = (sectionId === 'home') ? 'block' : 'none';
+        }
+
+        function openModal(courseId, name, description, duration) {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('edit-course-id').value = courseId;
+            document.getElementById('edit-course-name').value = name;
+            document.getElementById('edit-course-description').value = description.replace(/\\n/g, ' ');
+            document.getElementById('edit-course-duration').value = duration;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+    </script>
 </head>
 <body>
-    <h2>Welcome, {{ trainer.user.first_name }} {{ trainer.user.last_name }}</h2>
-    <p><strong>Email:</strong> {{ trainer.user.email }}</p>
-    <p><strong>Qualification:</strong> {{ trainer.qualification }}</p>
-    <p><strong>Experience:</strong> {{ trainer.experience }}</p>
-    <p><strong>Skills:</strong> {{ trainer.skills }}</p>
+    <div class="header">
+        <img src="{% static 'images/logo.png' %}" alt="Logo"> 
+        ERMS - Trainer Dashboard
+    </div>
 
-    <hr>
-
-    <h3>Create a New Course</h3>
-    <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
-        {% csrf_token %}
-        <input type="text" name="course_name" placeholder="Course Name" required><br>
-        <textarea name="course_description" placeholder="Course Description" required></textarea><br>
-        <input type="text" name="course_duration" placeholder="Duration (e.g., 4 weeks)" required><br>
-        <button type="submit" name="create_course">Create Course</button>
-    </form>
-
-    <hr>
-
-    <h3>Your Courses</h3>
-    {% for course in courses %}
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-            {% if editing_course and editing_course.id == course.id %}
-                <h4>Editing: {{ editing_course.course_name }}</h4>
-                <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="course_id" value="{{ editing_course.id }}">
-                    <input type="text" name="course_name" value="{{ editing_course.course_name }}" required><br>
-                    <textarea name="course_description" required>{{ editing_course.course_description }}</textarea><br>
-                    <input type="text" name="course_duration" value="{{ editing_course.course_duration }}" required><br>
-                    <button type="submit" name="update_course">Update Course</button>
-                </form>
-            {% else %}
-                <h4>{{ course.course_name }}</h4>
-                <p>{{ course.course_description }}</p>
-                <p><strong>Duration:</strong> {{ course.course_duration }}</p>
-                <a href="?edit={{ course.id }}">Edit</a>
-            {% endif %}
+    <div class="container">
+        <h2>Welcome, {{ trainer.user.first_name }} {{ trainer.user.last_name }}</h2>
+        <div class="profile-info">
+            <p><strong>Email:</strong> {{ trainer.user.email }}</p>
+            <p><strong>Qualification:</strong> {{ trainer.qualification }}</p>
+            <p><strong>Experience:</strong> {{ trainer.experience }}</p>
+            <p><strong>Skills:</strong> {{ trainer.skills }}</p>
         </div>
-    {% empty %}
-        <p>You haven't created any courses yet.</p>
-    {% endfor %}
+        
+        <div id="home" class="content-section active"></div>
+        
+        <div id="your-courses" class="content-section">
+            <h3>Your Courses</h3>
+            {% for course in courses %}
+                <div class="course-card">
+                    <h4>{{ course.course_name }}</h4>
+                    <p>{{ course.course_description }}</p>
+                    <p><strong>Duration:</strong> {{ course.course_duration }}</p>
+                </div>
+            {% empty %}
+                <p>You haven't created any courses yet.</p>
+            {% endfor %}
+        </div>
+        
+        <div id="create-course" class="content-section">
+            <h3>Create a New Course</h3>
+            <form method="POST" action="{% url 'lms:trainer_dashboard' %}">
+                {% csrf_token %}
+                
+                <input type="text" name="course_name" placeholder="Course Name" required>
+                <select name="course_category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Design">Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Business">Business</option>
+                    <option value="Data Science">Data Science</option>
+                </select>
+                
+                <textarea name="course_description" placeholder="Course Description" required></textarea>
+                <input type="text" name="course_duration" placeholder="Duration (e.g., 4 weeks)" required>
+                
+                <button type="submit" name="create_course">Create Course</button>
+            </form>
+        </div>
 
-    <hr>
-    <a href="{% url 'lms:logout_trainer' %}">Logout</a>
+        <div id="edit-course" class="content-section">
+            <h3>Edit Courses</h3>
+            {% for course in courses %}
+                <div class="course-card">
+                    <h4>{{ course.course_name }}</h4>
+                    <p>{{ course.course_description }}</p>
+                    <p><strong>Duration:</strong> {{ course.course_duration }}</p>
+                    <button class="edit-link" onclick="openModal('{{ course.id }}', '{{ course.course_name }}', '{{ course.course_description|escapejs }}', '{{ course.course_duration }}')">Edit</button>
+                </div>
+            {% empty %}
+                <p>No courses available for editing.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="nav-item" onclick="showSection('home')">Home</div>
+        <div class="nav-item" onclick="showSection('your-courses')">Your Courses</div>
+        <div class="nav-item" onclick="showSection('create-course')">Create Courses</div>
+        <div class="nav-item" onclick="showSection('edit-course')">Edit Courses</div>
+        <div class="nav-item"><a href="{% url 'lms:logout_trainer' %}" style="text-decoration: none; color: black;">Logout</a></div>
+    </div>
+
+    <div class="footer">
+        © 2025 ERMS. All rights reserved.
+    </div>
 </body>
 </html>

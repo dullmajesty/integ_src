@@ -128,7 +128,7 @@ def trainer_registration(request):
                     email=email,
                     password=password1
                 )
-                user.is_staff = True  # if you want trainer to access admin
+                user.is_staff = False  # if you want trainer to access admin
                 user.save()
 
                

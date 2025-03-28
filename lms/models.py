@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 # 🧑‍🏫 Trainer Profile
 class TrainerRegistration(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE) 
-    status = models.BooleanField(default=False)  # Admin approval
+    status = models.BooleanField(default=True)  
     role = models.CharField(default='trainer', max_length=20)
 
     def __str__(self):

@@ -1,11 +1,30 @@
-{% extends 'lms/home_base.html' %}
-
 {% block content %}
 <section style="margin-top: 100px;" class="container">
+    <!-- First Section Header -->
     <div class="section-header">
         <h2>Thanks for signing up as a Trainer!</h2>
+    </div>
+
+    <!-- Navigation / Logout -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="{% url 'lms:home' %}" style="text-decoration: none; font-size: 24px;">🏠</a>
+            <span style="font-weight: bold;">Hello, Trainer {{ user.username }}</span>
+        </div>
+        <a href="{% url 'lms:logout' %}" 
+           style="text-decoration: none; padding: 8px 15px; background: #4a7590; color: white; border-radius: 5px;">
+           Logout
+        </a>
+    </div>
+
+    <!-- Thank You Section -->
+    <div class="section-header" 
+         style="text-align: center; background: #f0f0f0; padding: 40px; border-radius: 10px; 
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #4a7590;">Thanks for signing up as a Trainer!</h2>
         <p>Your registration was successful. Please wait while the admin verifies your account.</p>
         <p>You’ll be able to log in once verification is complete.</p>
     </div>
 </section>
-{% endblock content %}
+{% endblock %}
+

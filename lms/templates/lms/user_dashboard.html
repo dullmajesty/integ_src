@@ -1,44 +1,127 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management | ERMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: white;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+            
+            
+        }
+        .header {
+            width: 100%;
+            background: #5A7D9A;
+            color: white;
+            padding: 10px 20px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar {
+            width: 30%;
+            height: 100%;
+            background: #D9D9D9;
+            position: fixed;
+            right: 0;
+            top: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .footer {
+            background: #5A7D9A;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+        .course-box {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .button {
+            background: green;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: darkgreen;
+        }
+        .footer-text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin-right: 32%; 
+        }
+    </style>
 </head>
 <body>
-    <div style="text-align: right;">
-        <form action="{% url 'lms:logout' %}" method="POST">
+    <div class="header">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" style="height: 50px; vertical-align: middle;">
+        ERMS - Learner Dashboard
+        <form method="POST" action="{% url 'lms:logout' %}" class="logout-form">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit" class="logout-button">Logout</button>
         </form>
+
     </div>
-
-    <h1>Welcome, {{ request.user.username }}!</h1>
-    <p>This is your dashboard.</p>
-
-    <h2>Your Courses</h2>
-    {% for enrollment in enrollments %}
-      <div>
-        <h3>{{ enrollment.course.course_name }}</h3>
-        <p>{{ enrollment.course.course_description }}</p>
-      </div>
-    {% empty %}
-      <p>You haven't enrolled in any courses yet.</p>
-    {% endfor %}
-
-    <hr>
-
-    <h2>Available Courses</h2>
-    {% for course in available_courses %}
-      <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-        <h3>{{ course.course_name }}</h3>
-        <p>{{ course.course_description }}</p>
-        <form method="POST" action="{% url 'lms:enroll_course' course.id %}">
-            {% csrf_token %}
-            <button type="submit">Enroll</button>
-        </form>
-      </div>
-    {% empty %}
-      <p>No more courses available to enroll.</p>
-    {% endfor %}
+    <div class="content">
+        <h1>Hello!, {{ request.user.username }}!</h1>
+        <p>This is your dashboard where you can manage your courses.</p>
+        <h2>Your Courses</h2>
+        {% for enrollment in enrollments %}
+          <div class="course-box">
+            <h3>{{ enrollment.course.course_name }}</h3>
+            <p>{{ enrollment.course.course_description }}</p>
+          </div>
+        {% empty %}
+          <p>You haven't enrolled in any courses yet.</p>
+        {% endfor %}
+    </div>
+    <div class="sidebar">
+        <h2>Available Courses</h2>
+        {% for course in available_courses %}
+          <div class="course-box">
+            <h3>{{ course.course_name }}</h3>
+            <p>{{ course.course_description }}</p>
+            <form method="POST" action="{% url 'lms:enroll_course' course.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button">Enroll</button>
+            </form>
+          </div>
+        {% empty %}
+          <p>No more courses available to enroll.</p>
+        {% endfor %}
+    </div>
+    <div class="footer">
+        <div class="footer-text">© 2025 ERSM. All rights reserved.</div>
+    </div>
 </body>
 </html>
